@@ -405,13 +405,12 @@ func GetEtfDataFromJFZT(market string, inst string) (KlineData, error) {
 // https://blog.csdn.net/Meepoljd/article/details/129422612
 func BuildTable(result []KlineData) string {
 	t := table.NewWriter()
-	header := table.Row{"Code", "Name", "Yesterday", "Current", "Percent", "Open", "High", "Low"}
+	header := table.Row{"Code", "Name", "Yesterday", "Current", "Open", "High", "Low"}
 	t.AppendHeader(header)
 	t.SetAutoIndex(true)
 
 	for _, v := range result {
-		closestr := fmt.Sprintf("%.2f", v.Close)
-		var curr,high,low,open float64
+		var curr, high, low, open float64
 		if v.Close > 0 {
 			curr = (v.Close - v.PreClose) / v.PreClose
 		}
@@ -424,20 +423,16 @@ func BuildTable(result []KlineData) string {
 		if v.Open > 0 {
 			open = (v.Open - v.PreClose) / v.PreClose
 		}
-		
-		currperc := fmt.Sprintf("%.2f%%", (math.Round(10000*curr))/100)
-		highperc := fmt.Sprintf("%.2f%%", (math.Round(10000*high))/100)
-		lowperc := fmt.Sprintf("%.2f%%", (math.Round(10000*low))/100)
-		openperc := fmt.Sprintf("%.2f%%", (math.Round(10000*open))/100)
+
+		currperc := fmt.Sprintf("%.2f [%.2f%%]", v.Close, (math.Round(10000*curr))/100)
+		openperc := fmt.Sprintf("%.2f [%.2f%%]", v.Open, (math.Round(10000*open))/100)
+		highperc := fmt.Sprintf("%.2f [%.2f%%]", v.High, (math.Round(10000*high))/100)
+		lowperc := fmt.Sprintf("%.2f [%.2f%%]", v.Low, (math.Round(10000*low))/100)
 
 		// 字符标红标绿
-		// currperc := (math.Round(10000 * curr)) / 100
-		// openperc := (math.Round(10000 * open)) / 100
-		// highperc := (math.Round(10000 * high)) / 100
-		// lowperc := (math.Round(10000 * low)) / 100
-		// SetColumnPercentColor(t, []string{"Percent", "Open", "High", "Low"})
+		// SetColumnPercentColor(t, []string{"Current", "Open", "High", "Low"})
 
-		row := table.Row{v.StockCode, v.StockName, v.PreClose, closestr, currperc, openperc, highperc, lowperc}
+		row := table.Row{v.StockCode, v.StockName, v.PreClose, currperc, openperc, highperc, lowperc}
 		t.AppendRow(row)
 	}
 
@@ -484,13 +479,13 @@ func SetColumnPercentColor(t table.Writer, columns []string) {
 	WarnColor := text.Colors{text.FgRed}
 	GreenColor := text.Colors{text.FgGreen}
 	warnTransformer := text.Transformer(func(val interface{}) string {
-		if val.(float64) > 0 {
-			return WarnColor.Sprintf("%.2f%%", val)
-		} else if val.(float64) < 0 {
-			return GreenColor.Sprintf("%.2f%%", val)
+		if strings.Contains(val.(string), "-") {
+			return GreenColor.Sprint(val)
+		} else if strings.Contains(val.(string), "0.00") {
+			return fmt.Sprint(val)
+		} else {
+			return WarnColor.Sprint(val)
 		}
-
-		return fmt.Sprintf("%v%%", val)
 	})
 
 	tableColumnConfig := make([]table.ColumnConfig, 0)
@@ -498,7 +493,7 @@ func SetColumnPercentColor(t table.Writer, columns []string) {
 		tableColumnConfig = append(tableColumnConfig, table.ColumnConfig{
 			Name:        column,
 			AutoMerge:   true,
-			Align:       text.AlignCenter,
+			Align:       text.AlignRight,
 			AlignHeader: text.AlignCenter,
 			AlignFooter: text.AlignCenter,
 			Transformer: warnTransformer,
