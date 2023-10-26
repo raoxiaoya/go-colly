@@ -411,11 +411,20 @@ func BuildTable(result []KlineData) string {
 
 	for _, v := range result {
 		closestr := fmt.Sprintf("%.2f", v.Close)
-
-		curr := (v.Close - v.PreClose) / v.PreClose
-		high := (v.High - v.PreClose) / v.PreClose
-		low := (v.Low - v.PreClose) / v.PreClose
-		open := (v.Open - v.PreClose) / v.PreClose
+		var curr,high,low,open float64
+		if v.Close > 0 {
+			curr = (v.Close - v.PreClose) / v.PreClose
+		}
+		if v.High > 0 {
+			high = (v.High - v.PreClose) / v.PreClose
+		}
+		if v.Low > 0 {
+			low = (v.Low - v.PreClose) / v.PreClose
+		}
+		if v.Open > 0 {
+			open = (v.Open - v.PreClose) / v.PreClose
+		}
+		
 		currperc := fmt.Sprintf("%.2f%%", (math.Round(10000*curr))/100)
 		highperc := fmt.Sprintf("%.2f%%", (math.Round(10000*high))/100)
 		lowperc := fmt.Sprintf("%.2f%%", (math.Round(10000*low))/100)

@@ -37,6 +37,11 @@ https://web.ifzq.gtimg.cn/appstock/app/minute/query?code=sz002139
     如果 oken invalid，就去访问网站 https://stock.9fzt.com/index/sz_002139.html，
     从接口 https://qas.sylapp.cn/api/v30/busi 中找到 token ，目前是24小时过期。
 
+    登录获得token
+    POST https://qas.sylapp.cn/api/v30/login
+    rawdata：{"OrgCode":"rh","Token":"e9252a64-6ac8-4bf8-9725-6f106f682908","AppName":"tctest","AppVer":"V3.1.9","AppType":"ios","Tag":"mytag123456"}
+    但是Token参数还不知道哪里来
+
 ETF
     类型：get
     https://hq.chongnengjihua.com/rjhy-gmg-quote/api/1/stock/getastockfundamentals?symbol=shetf510300
