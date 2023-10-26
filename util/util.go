@@ -429,8 +429,8 @@ func BuildTable(result []KlineData) string {
 		highperc := fmt.Sprintf("%.2f [%.2f%%]", v.High, (math.Round(10000*high))/100)
 		lowperc := fmt.Sprintf("%.2f [%.2f%%]", v.Low, (math.Round(10000*low))/100)
 
-		// 字符标红标绿
-		// SetColumnPercentColor(t, []string{"Current", "Open", "High", "Low"})
+		// 样式
+		SetColumnStyle(t, []string{"Current", "Open", "High", "Low"}, nil)
 
 		row := table.Row{v.StockCode, v.StockName, v.PreClose, currperc, openperc, highperc, lowperc}
 		t.AppendRow(row)
@@ -472,13 +472,12 @@ func RefreshTable(data string) string {
 	return dst
 }
 
-func SetColumnPercentColor(t table.Writer, columns []string) {
-	if len(columns) == 0 {
-		return
-	}
-	WarnColor := text.Colors{text.FgRed}
-	GreenColor := text.Colors{text.FgGreen}
+// 设置文字为红色和绿色
+func GetColumnTransformer() text.Transformer {
 	warnTransformer := text.Transformer(func(val interface{}) string {
+		WarnColor := text.Colors{text.FgRed}
+		GreenColor := text.Colors{text.FgGreen}
+		
 		if strings.Contains(val.(string), "-") {
 			return GreenColor.Sprint(val)
 		} else if strings.Contains(val.(string), "0.00") {
@@ -487,6 +486,14 @@ func SetColumnPercentColor(t table.Writer, columns []string) {
 			return WarnColor.Sprint(val)
 		}
 	})
+
+	return warnTransformer
+}
+
+func SetColumnStyle(t table.Writer, columns []string, warnTransformer text.Transformer) {
+	if len(columns) == 0 {
+		return
+	}
 
 	tableColumnConfig := make([]table.ColumnConfig, 0)
 	for _, column := range columns {
