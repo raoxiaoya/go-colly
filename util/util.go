@@ -424,6 +424,7 @@ func BuildTable(result []KlineData) string {
 			open = (v.Open - v.PreClose) / v.PreClose
 		}
 
+		preclode := fmt.Sprintf("%.3f", v.PreClose)
 		currperc := fmt.Sprintf("%.3f [%.2f%%]", v.Close, (math.Round(10000*curr))/100)
 		openperc := fmt.Sprintf("%.3f [%.2f%%]", v.Open, (math.Round(10000*open))/100)
 		highperc := fmt.Sprintf("%.3f [%.2f%%]", v.High, (math.Round(10000*high))/100)
@@ -432,7 +433,7 @@ func BuildTable(result []KlineData) string {
 		// 样式
 		SetColumnStyle(t, []string{"Current", "Open", "High", "Low"}, nil)
 
-		row := table.Row{v.StockCode, v.StockName, v.PreClose, currperc, openperc, highperc, lowperc}
+		row := table.Row{v.StockCode, v.StockName, preclode, currperc, openperc, highperc, lowperc}
 		t.AppendRow(row)
 	}
 
