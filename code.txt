@@ -7,4 +7,5 @@ SZ_159673_300_2
 SZ_159915_创业_2
 SH_513050_中概_2
 //token
-token_8f4f4d16-72fc-11ee-aea0-aa15ee52be4a
+//https://stock.9fzt.com/index/sz_002139.html
+token_6fcae7ff-7465-11ee-bd1e-96ff8747578f

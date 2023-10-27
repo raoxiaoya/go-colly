@@ -424,10 +424,10 @@ func BuildTable(result []KlineData) string {
 			open = (v.Open - v.PreClose) / v.PreClose
 		}
 
-		currperc := fmt.Sprintf("%.2f [%.2f%%]", v.Close, (math.Round(10000*curr))/100)
-		openperc := fmt.Sprintf("%.2f [%.2f%%]", v.Open, (math.Round(10000*open))/100)
-		highperc := fmt.Sprintf("%.2f [%.2f%%]", v.High, (math.Round(10000*high))/100)
-		lowperc := fmt.Sprintf("%.2f [%.2f%%]", v.Low, (math.Round(10000*low))/100)
+		currperc := fmt.Sprintf("%.3f [%.2f%%]", v.Close, (math.Round(10000*curr))/100)
+		openperc := fmt.Sprintf("%.3f [%.2f%%]", v.Open, (math.Round(10000*open))/100)
+		highperc := fmt.Sprintf("%.3f [%.2f%%]", v.High, (math.Round(10000*high))/100)
+		lowperc := fmt.Sprintf("%.3f [%.2f%%]", v.Low, (math.Round(10000*low))/100)
 
 		// 样式
 		SetColumnStyle(t, []string{"Current", "Open", "High", "Low"}, nil)
