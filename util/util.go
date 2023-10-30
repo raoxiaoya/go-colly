@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"flag"
 	"fmt"
 	"io"
 	"log"
@@ -23,6 +24,7 @@ import (
 var (
 	// Clients and Transports are safe for concurrent use by multiple goroutines and for efficiency should only be created once and re-used.
 	customizedClient = http.Client{Timeout: time.Second * 10}
+	codeFile = "code.txt"
 )
 
 // HttpRequest
@@ -124,10 +126,18 @@ func PrettyPrint(v interface{}) {
 	fmt.Println(out.String())
 }
 
-func GetStockData() ([]KlineData, error) {
+func GetStockData(cmdToken string) ([]KlineData, error) {
 	conf, err := ParseConfigFile()
 	if err != nil {
 		return nil, err
+	}
+
+	if cmdToken != "" {
+		err := StoreTokenToFile(conf.Token, cmdToken)
+		if err != nil {
+			log.Panicln(err)
+		}
+		conf.Token = cmdToken
 	}
 
 	var result []KlineData
@@ -222,12 +232,23 @@ type Config struct {
 	Token string
 }
 
+func StoreTokenToFile(oldtoken, newtoken string) error {
+	bt, err := os.ReadFile(codeFile)
+	os.Truncate(codeFile, 0) // 清空文件内容
+	btstr := string(bt)
+	btstr = strings.ReplaceAll(btstr, oldtoken, newtoken)
+	os.WriteFile(codeFile, []byte(btstr), os.ModePerm)
+
+	return err
+}
+
 func ParseConfigFile() (Config, error) {
 	var conf Config
-	file, err := os.Open("code.txt")
+	file, err := os.Open(codeFile)
 	if err != nil {
 		return Config{}, err
 	}
+	defer file.Close()
 
 	ids := make([]string, 0)
 	r := bufio.NewReader(file)
@@ -478,7 +499,7 @@ func GetColumnTransformer() text.Transformer {
 	warnTransformer := text.Transformer(func(val interface{}) string {
 		WarnColor := text.Colors{text.FgRed}
 		GreenColor := text.Colors{text.FgGreen}
-		
+
 		if strings.Contains(val.(string), "-") {
 			return GreenColor.Sprint(val)
 		} else if strings.Contains(val.(string), "0.00") {
@@ -509,4 +530,12 @@ func SetColumnStyle(t table.Writer, columns []string, warnTransformer text.Trans
 	}
 
 	t.SetColumnConfigs(tableColumnConfig)
+}
+
+func ParseTokenFromParam() string {
+	var token string
+	flag.StringVar(&token, "token", "", "")
+	flag.Parse()
+
+	return token
 }

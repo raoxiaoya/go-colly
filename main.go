@@ -31,9 +31,10 @@ func fun1() {
 }
 
 func fun3() {
+	cmdToken := util.ParseTokenFromParam()
 	var FormatBool bool
 	for {
-		result, err := util.GetStockData()
+		result, err := util.GetStockData(cmdToken)
 		if err != nil {
 			log.Fatal(err)
 		}
