@@ -13,18 +13,25 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"reflect"
 	"strconv"
 	"strings"
 	"time"
 
+	"database/sql"
+
+	"github.com/360EntSecGroup-Skylar/excelize/v2"
+
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jedib0t/go-pretty/v6/text"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 var (
 	// Clients and Transports are safe for concurrent use by multiple goroutines and for efficiency should only be created once and re-used.
 	customizedClient = http.Client{Timeout: time.Second * 10}
-	codeFile = "code.txt"
+	codeFile         = "code.txt"
+	sqlite3db        = "db/stock2.db"
 )
 
 // HttpRequest
@@ -538,4 +545,204 @@ func ParseTokenFromParam() string {
 	flag.Parse()
 
 	return token
+}
+
+func CreateSqlite3() (sqldb *sql.DB, err error) {
+	sqldb, err = sql.Open("sqlite3", sqlite3db)
+	if err != nil {
+		return nil, errors.New("open database failed: " + err.Error())
+	}
+	err = sqldb.Ping()
+	if err != nil {
+		return nil, errors.New("connect database failed: " + err.Error())
+	}
+	fmt.Println("connect to ", sqlite3db, "ok")
+
+	return
+}
+
+// CheckAndMakeDirAll
+func CheckAndMakeDirAll(filepath string) (err error) {
+	_, err = os.Stat(filepath)
+	if os.IsPermission(err) {
+		return err
+	}
+
+	if os.IsNotExist(err) {
+		err = os.MkdirAll(filepath, os.ModePerm)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// OutPutDataWithXLSX output struct slice list to xlsx with specified style
+func OutPutDataWithXLSX(list interface{}, headers []string, title string, filepath string, filename string, mergenum int) (err error) {
+	// 创建目录结构
+	err = CheckAndMakeDirAll(filepath)
+	if err != nil {
+		return err
+	}
+
+	filename = filepath + "/" + filename
+
+	// 默认存在第一个工作簿是 Sheet1 首字母要大写，否则会报错。
+	// 如果想额外的创建工作簿，可以使用，sheet2 := file.NewSheet("Sheet2")，工作簿的名称不区分大小写。
+	// 如果有多个工作簿，可以使用 file.SetActiveSheet(index) 来指定打开文件时focus到哪个工作簿
+	sheet1 := "Sheet1"
+	f := excelize.NewFile()
+
+	// 65 -> A
+	ln := len(headers)
+	character := ""
+	if ln <= 26 {
+		character = string(64 + ln)
+	} else if ln <= 52 {
+		character = "A" + string(64+ln-26)
+	} else {
+		character = "AA" + string(64+ln-52)
+	}
+
+	/* -------------------- 第一行大标题 -------------------- */
+
+	// 设置行高
+	err = f.SetRowHeight(sheet1, 1, 40)
+	if err != nil {
+		fmt.Println("11")
+		return err
+	}
+
+	// 合并单元格
+	err = f.MergeCell(sheet1, "A1", character+"1")
+	if err != nil {
+		fmt.Println("22")
+		return err
+	}
+
+	// 设置单元格样式：对齐；字体，大小；单元格边框
+	styleTitle, _ := f.NewStyle(`{"alignment":{"horizontal":"center","vertical":"center"},"font":{"bold":true,"italic":false,"family":"Calibri","size":16,"color":"#000000"},"border":[{"type":"left","color":"#3FAD08","style":0},{"type":"top","color":"#3FAD08","style":0},{"type":"bottom","color":"#3FAD08","style":2},{"type":"right","color":"#3FAD08","style":0}]}`)
+	err = f.SetCellStyle(sheet1, "A1", character+"1", styleTitle)
+	if err != nil {
+		fmt.Println("33")
+		return err
+	}
+
+	err = f.SetCellValue(sheet1, "A1", title)
+	if err != nil {
+		fmt.Println("44")
+		return err
+	}
+
+	/* -------------------- 字段标题 -------------------- */
+	styleHeader, _ := f.NewStyle(`{"alignment":{"horizontal":"center","vertical":"center"},"font":{"bold":false,"italic":false,"family":"Calibri","size":10,"color":"#000000"}}`)
+	err = f.SetCellStyle(sheet1, "A2", character+"2", styleHeader)
+	if err != nil {
+		fmt.Println("55")
+		return err
+	}
+
+	for k, v := range headers {
+		chr := ""
+		if k < 26 {
+			chr = string(64 + k + 1)
+		} else if k < 52 {
+			chr = "A" + string(64+k+1-26)
+		} else {
+			chr = "AA" + string(64+k+1-52)
+		}
+		err = f.SetCellValue(sheet1, chr+"2", v)
+		if err != nil {
+			fmt.Println("66")
+			return err
+		}
+	}
+
+	// 设置最后一列宽度
+	err = f.SetColWidth(sheet1, "C", character, 20)
+	if err != nil {
+		fmt.Println("77")
+		return err
+	}
+
+	// 冻结窗口：冻结第一行和第二行
+	err = f.SetPanes(sheet1, `{"freeze":true,"split":false,"x_split":0,"y_split":2}`)
+	if err != nil {
+		fmt.Println("88")
+		return err
+	}
+
+	///* -------------------- 填充行数据 -------------------- */
+
+	getValue := reflect.ValueOf(list)
+	if getValue.Kind() != reflect.Slice {
+		return errors.New("list must be slice")
+	}
+	length := getValue.Len()
+
+	if length > 0 {
+		line := 3
+		for i := 0; i < length; i++ {
+			value := getValue.Index(i)
+			typel := value.Type()
+			if typel.Kind() != reflect.Struct {
+				return errors.New("list must be slice of struct")
+			}
+
+			lineChr := strconv.Itoa(line)
+			// 设置样式
+			err = f.SetCellStyle(sheet1, "A"+lineChr, character+lineChr, styleHeader)
+			if err != nil {
+				fmt.Println("99")
+				return err
+			}
+
+			n := value.NumField()
+			var v0, v1 interface{}
+			for i := 0; i < n; i++ {
+				val := value.Field(i)
+
+				if i == 0 {
+					v0 = val.Interface()
+				}
+				if i == 1 {
+					v1 = val.Interface()
+				}
+
+				chr := ""
+				if i < 26 {
+					chr = string(64 + i + 1)
+				} else if i < 52 {
+					chr = "A" + string(64+i+1-26)
+				} else {
+					chr = "AA" + string(64+i+1-52)
+				}
+
+				err = f.SetCellValue(sheet1, chr+lineChr, val.Interface())
+				if err != nil {
+					fmt.Println("00")
+					return err
+				}
+			}
+
+			// i = 0,8; 9,17
+			if (i+1)%mergenum == 0 {
+				f.MergeCell(sheet1, "A"+strconv.Itoa(i-mergenum+4), "A"+strconv.Itoa(i+3))
+				f.SetCellValue(sheet1, "A"+strconv.Itoa(i-mergenum+4), v0)
+				f.MergeCell(sheet1, "B"+strconv.Itoa(i-mergenum+4), "B"+strconv.Itoa(i+3))
+				f.SetCellValue(sheet1, "B"+strconv.Itoa(i-mergenum+4), v1)
+			}
+
+			line++
+		}
+	}
+
+	err = f.SaveAs(filename)
+	if err != nil {
+		fmt.Println("123")
+		return err
+	}
+
+	return nil
 }
