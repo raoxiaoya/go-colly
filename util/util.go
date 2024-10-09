@@ -14,6 +14,7 @@ import (
 	"net/url"
 	"os"
 	"reflect"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -537,6 +538,47 @@ func SetColumnStyle(t table.Writer, columns []string, warnTransformer text.Trans
 	}
 
 	t.SetColumnConfigs(tableColumnConfig)
+}
+
+func GetTokenFromWebsite() string {
+	jsfile := "https://stock.9fzt.com/_next/static/chunks/pages/index/index/%5Bmarket_symbol%5D-c090f6b2b074bb192ec7.js"
+	resp, err := HttpRequest(jsfile, "GET", nil, "")
+	if err != nil {
+		log.Println(err)
+		return ""
+	}
+	matches := regexp.MustCompile(`Token:"(.{36})"`).FindStringSubmatch(resp)
+	if len(matches) == 0 {
+		return ""
+	}
+
+	pretoken := matches[1]
+	fmt.Println("token1", pretoken)
+
+	headers := make(map[string]string)
+	headers["Content-Type"] = "application/json"
+
+	body := make(map[string]string)
+	body["OrgCode"] = "rh"
+	body["Token"] = pretoken
+	body["AppName"] = "tctest"
+	body["AppVer"] = "V3.1.9"
+	body["AppType"] = "ios"
+	body["Tag"] = "mytag123456"
+	bt, _ := json.Marshal(body)
+
+	rp, err := HttpRequest("https://qas.sylapp.cn/api/v30/login", "POST", headers, string(bt))
+	if err != nil {
+		log.Println(err)
+		return ""
+	}
+	mat := regexp.MustCompile(`"Token":"(.{36})"`).FindStringSubmatch(rp)
+	if len(mat) > 0 {
+		fmt.Println("token2", mat[1])
+		return mat[1]
+	} else {
+		return ""
+	}
 }
 
 func ParseTokenFromParam() string {

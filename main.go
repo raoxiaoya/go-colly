@@ -13,7 +13,7 @@ import (
 )
 
 func main() {
-	fun4()
+	fun3()
 }
 
 func fun1() {
@@ -34,7 +34,13 @@ func fun1() {
 }
 
 func fun3() {
-	cmdToken := util.ParseTokenFromParam()
+	// cmdToken := util.ParseTokenFromParam()
+
+	cmdToken := util.GetTokenFromWebsite()
+	if cmdToken == "" {
+		log.Fatalln("token is empty")
+	}
+
 	var FormatBool bool
 	for {
 		result, err := util.GetStockData(cmdToken)

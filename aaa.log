@@ -1,0 +1,138 @@
+main.main STEXT size=165 args=0x0 locals=0x68 funcid=0x0 align=0x0
+        TEXT    main.main(SB), ABIInternal, $104-0
+        CMPQ    SP, 16(R14)
+        PCDATA  $0, $-2
+        JLS     154
+        PCDATA  $0, $-1
+        SUBQ    $104, SP
+        MOVQ    BP, 96(SP)
+        LEAQ    96(SP), BP
+        FUNCDATA        $0, gclocals·g2BeySu+wFnoycgXfElmcg==(SB)
+        FUNCDATA        $1, gclocals·g2BeySu+wFnoycgXfElmcg==(SB)
+        MOVL    $1, AX
+        MOVL    $10, BX
+        MOVL    $100, CX
+        PCDATA  $1, $0
+        CALL    main.function(SB)
+        MOVQ    AX, main..autotmp_6+64(SP)
+        MOVQ    BX, main..autotmp_7+56(SP)
+        MOVQ    CX, main..autotmp_8+48(SP)
+        MOVQ    AX, main..autotmp_3+88(SP)
+        MOVQ    BX, main..autotmp_4+80(SP)
+        MOVQ    CX, main..autotmp_5+72(SP)
+        MOVQ    AX, main.x+40(SP)
+        MOVQ    BX, main.y+32(SP)
+        MOVQ    CX, main.z+24(SP)
+        CALL    runtime.printlock(SB)
+        MOVQ    main.x+40(SP), AX
+        CALL    runtime.printint(SB)
+        CALL    runtime.printsp(SB)
+        MOVQ    main.y+32(SP), AX
+        CALL    runtime.printint(SB)
+        CALL    runtime.printsp(SB)
+        MOVQ    main.z+24(SP), AX
+        CALL    runtime.printint(SB)
+        CALL    runtime.printnl(SB)
+        CALL    runtime.printunlock(SB)
+        MOVQ    96(SP), BP
+        ADDQ    $104, SP
+        RET
+        NOP
+        PCDATA  $1, $-1
+        PCDATA  $0, $-2
+        CALL    runtime.morestack_noctxt(SB)
+        PCDATA  $0, $-1
+        NOP
+        JMP     0
+        
+main.function STEXT nosplit size=118 args=0x18 locals=0x20 funcid=0x0 align=0x0
+        TEXT    main.function(SB), NOSPLIT|ABIInternal, $32-24
+        SUBQ    $32, SP
+        MOVQ    BP, 24(SP)
+        LEAQ    24(SP), BP
+        FUNCDATA        $0, gclocals·g2BeySu+wFnoycgXfElmcg==(SB)
+        FUNCDATA        $1, gclocals·g2BeySu+wFnoycgXfElmcg==(SB)
+        FUNCDATA        $5, main.function.arginfo1(SB)
+        MOVQ    AX, main.a+40(SP)
+        MOVQ    BX, main.b+48(SP)
+        MOVQ    CX, main.c+56(SP)
+        MOVQ    $0, main.~r0+16(SP)
+        MOVQ    $0, main.~r1+8(SP)
+        MOVQ    $0, main.~r2(SP)
+        MOVQ    main.a+40(SP), AX
+        INCQ    AX
+        MOVQ    AX, main.a+40(SP)
+        MOVQ    main.b+48(SP), BX
+        INCQ    BX
+        MOVQ    BX, main.b+48(SP)
+        MOVQ    main.c+56(SP), CX
+        INCQ    CX
+        MOVQ    CX, main.c+56(SP)
+        MOVQ    AX, main.~r0+16(SP)
+        MOVQ    BX, main.~r1+8(SP)
+        MOVQ    CX, main.~r2(SP)
+        MOVQ    24(SP), BP
+        ADDQ    $32, SP
+        RET
+
+
+main.demo2 STEXT size=148 args=0x0 locals=0x78 funcid=0x0 align=0x0
+        TEXT    main.demo2(SB), ABIInternal, $120-0
+        CMPQ    SP, 16(R14)
+        PCDATA  $0, $-2
+        JLS     138
+        PCDATA  $0, $-1
+        SUBQ    $120, SP
+        MOVQ    BP, 112(SP)
+        LEAQ    112(SP), BP
+        FUNCDATA        $0, gclocals·g2BeySu+wFnoycgXfElmcg==(SB)
+        FUNCDATA        $1, gclocals·h9/3ZXR9C8aF0T5QhErdzQ==(SB)
+        FUNCDATA        $2, main.demo2.stkobj(SB)
+        MOVQ    $0, main.ret+8(SP)
+        MOVUPS  X15, main..autotmp_2+96(SP)
+        LEAQ    main..autotmp_2+96(SP), CX
+        MOVQ    CX, main..autotmp_1+88(SP)
+        TESTB   AL, (CX)
+        LEAQ    main.demo2.func1(SB), DX
+        MOVQ    DX, main..autotmp_2+96(SP)
+        TESTB   AL, (CX)
+        LEAQ    main.ret+8(SP), DX
+        MOVQ    DX, main..autotmp_2+104(SP)
+        MOVQ    CX, main..autotmp_3+40(SP)
+        LEAQ    main..autotmp_3+16(SP), AX
+        PCDATA  $1, $0
+        CALL    runtime.deferprocStack(SB)
+        TESTL   AX, AX
+        JNE     118
+        NOP
+        JMP     98
+        CALL    runtime.deferreturn(SB)
+        MOVQ    main.ret+8(SP), AX
+        MOVQ    112(SP), BP
+        ADDQ    $120, SP
+        RET
+        CALL    runtime.deferreturn(SB)
+        MOVQ    main.ret+8(SP), AX
+        MOVQ    112(SP), BP
+        ADDQ    $120, SP
+        RET
+        NOP
+        PCDATA  $1, $-1
+        PCDATA  $0, $-2
+        CALL    runtime.morestack_noctxt(SB)
+        PCDATA  $0, $-1
+        JMP     0
+        
+main.demo2.func1 STEXT nosplit size=39 args=0x0 locals=0x10 funcid=0x0 align=0x0
+        TEXT    main.demo2.func1(SB), NOSPLIT|NEEDCTXT|ABIInternal, $16-0
+        SUBQ    $16, SP
+        MOVQ    BP, 8(SP)
+        LEAQ    8(SP), BP
+        FUNCDATA        $0, gclocals·g2BeySu+wFnoycgXfElmcg==(SB)
+        FUNCDATA        $1, gclocals·Plqv2ff52JtlYaDd2Rwxbg==(SB)
+        MOVQ    8(DX), AX
+        MOVQ    AX, main.&ret(SP)
+        MOVQ    $1, (AX)
+        MOVQ    8(SP), BP
+        ADDQ    $16, SP
+        RET

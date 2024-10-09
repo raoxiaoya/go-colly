@@ -64,3 +64,46 @@ token_64670158-76c1-11ee-924f-9edae9886bc4
 ```
 
 运行 `go-colly.exe -token=332f0eb6-f8a5-11ee-92ea-1e4e7ff7729d`
+
+
+
+##### 九方智投自动登录
+
+首页会加载一个js文件：https://stock.9fzt.com/_next/static/chunks/pages/index/index/%5Bmarket_symbol%5D-c090f6b2b074bb192ec7.js
+
+```js
+method: "post",
+url: "https://qas.sylapp.cn/api/v30/login",
+data: JSON.stringify({
+    OrgCode: "rh",
+    Token: "e9252a64-6ac8-4bf8-9725-6f106f682908",
+    AppName: "tctest",
+    AppVer: "V3.1.9",
+    AppType: "ios",
+    Tag: "mytag123456"
+}),
+headers: {
+    "Content-Type": "application/json"
+}
+```
+
+这里的参数 Token 会随着js文件定期变化。每天拉取这个文件，然后得到Token参数再发起请求回去实际的Token。
+
+该请求的返回值
+
+```json
+{
+    "Code": "0000",
+    "Message": "ok",
+    "ReqID": 0,
+    "QuoteData": {
+        "AuthData": [
+            {
+                "Token": "07d8080f-85d7-11ef-8244-1e47b4029c79",
+                "Tag": "mytag123456",
+                "ExpireTime": 86400
+            }
+        ]
+    }
+}
+```
