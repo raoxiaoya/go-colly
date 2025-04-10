@@ -38,7 +38,7 @@ func fun3() {
 
 	cmdToken := util.GetTokenFromWebsite()
 	if cmdToken == "" {
-		log.Fatalln("token is empty")
+		// log.Fatalln("token is empty") // 获取失败了
 	}
 
 	var FormatBool bool
